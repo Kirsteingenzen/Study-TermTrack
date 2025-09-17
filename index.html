@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study TermTrack - CARSU</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Login/Register Screen -->
+        <div id="auth-screen" class="screen active">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="logo-section">
+                        <img src="public/images/study-termtrack-logo.png" alt="Study TermTrack Logo" class="logo">
+                        <h1>Study TermTrack</h1>
+                        <p class="subtitle">Caraga State University</p>
+                    </div>
+                    
+                    <div class="tab-container">
+                        <button class="tab-btn active" data-tab="signin">Sign In</button>
+                        <button class="tab-btn" data-tab="register">Register</button>
+                    </div>
+                    
+                    <form id="signin-form" class="auth-form active">
+                        <div class="form-group">
+                            <label for="signin-email">University Email</label>
+                            <input type="email" id="signin-email" placeholder="your.name@carsu.edu.ph" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password">Password</label>
+                            <input type="password" id="signin-password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="auth-btn">Sign In</button>
+                        <p class="auth-note">Only students with valid @carsu.edu.ph email addresses can access this application.</p>
+                    </form>
+                    
+                    <form id="register-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="register-name">Full Name</label>
+                            <input type="text" id="register-name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">University Email</label>
+                            <input type="email" id="register-email" placeholder="your.name@carsu.edu.ph" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" placeholder="Create a password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm">Confirm Password</label>
+                            <input type="password" id="register-confirm" placeholder="Confirm your password" required>
+                        </div>
+                        <button type="submit" class="auth-btn">Register</button>
+                        <p class="auth-note">Only students with valid @carsu.edu.ph email addresses can register.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-screen" class="screen">
+            <div class="dashboard-container">
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <img src="public/images/study-termtrack-logo.png" alt="Study TermTrack Logo" class="header-logo">
+                        <h1>Study TermTrack Dashboard</h1>
+                        <button id="logout-btn" class="logout-btn">Logout</button>
+                    </div>
+                </header>
+                
+                <main class="dashboard-main">
+                    <div class="upload-section">
+                        <h2>Upload Study Material</h2>
+                        <div class="upload-card">
+                            <div class="file-type-selector">
+                                <label>Select File Type:</label>
+                                <div class="file-type-options">
+                                    <label class="file-type-option">
+                                        <input type="radio" name="fileType" value="pdf" checked>
+                                        <span>PDF</span>
+                                    </label>
+                                    <label class="file-type-option">
+                                        <input type="radio" name="fileType" value="word">
+                                        <span>Word/Docs</span>
+                                    </label>
+                                    <label class="file-type-option">
+                                        <input type="radio" name="fileType" value="ppt">
+                                        <span>PowerPoint</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="upload-area" id="upload-area">
+                                <div class="upload-content">
+                                    <div class="upload-icon">📁</div>
+                                    <p>Drag and drop your file here or click to browse</p>
+                                    <input type="file" id="file-input" accept=".pdf,.doc,.docx,.ppt,.pptx" hidden>
+                                </div>
+                            </div>
+                            
+                            <button id="generate-quiz-btn" class="generate-btn" disabled>Generate Quiz</button>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-section" class="quiz-section hidden">
+                        <div class="quiz-header">
+                            <h2>Quiz Generated</h2>
+                            <div class="quiz-info">
+                                <span id="question-counter">Question 1 of 10</span>
+                                <div class="timer">
+                                    <span id="timer-display">10:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-content">
+                            <div id="question-container">
+                                <!-- Questions will be dynamically inserted here -->
+                            </div>
+                            
+                            <div class="quiz-controls">
+                                <button id="prev-btn" class="control-btn" disabled>Previous</button>
+                                <button id="next-btn" class="control-btn">Next</button>
+                                <button id="submit-quiz-btn" class="submit-btn hidden">Submit Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="results-section" class="results-section hidden">
+                        <div class="results-card">
+                            <h2>Quiz Results</h2>
+                            <div class="score-display">
+                                <div class="score-circle">
+                                    <span id="score-percentage">0%</span>
+                                </div>
+                                <p id="score-text">You scored 0 out of 0</p>
+                            </div>
+                            <button id="new-quiz-btn" class="new-quiz-btn">Take New Quiz</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
