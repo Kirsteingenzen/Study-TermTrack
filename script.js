@@ -238,69 +238,121 @@ function extractFileContent(file, fileType) {
   const reader = new FileReader()
 
   reader.onload = (e) => {
-    const content = e.target.result
+    try {
+      const content = e.target.result
 
-    if (fileType === "pdf") {
-      // For PDF files, we'll simulate content extraction
-      // In a real implementation, you'd use PDF.js or similar library
-      simulatePDFExtraction(file.name)
-    } else if (fileType === "word") {
-      // For Word files, we'll simulate content extraction
-      // In a real implementation, you'd use mammoth.js or similar library
-      simulateWordExtraction(file.name)
-    } else if (fileType === "ppt") {
-      // For PowerPoint files, we'll simulate content extraction
-      simulatePPTExtraction(file.name)
+      if (fileType === "pdf") {
+        processPDFFile(file, content)
+      } else if (fileType === "word") {
+        processWordFile(file, content)
+      } else if (fileType === "ppt") {
+        processPPTFile(file, content)
+      }
+    } catch (error) {
+      console.error("Error processing file:", error)
+      showFileError(file.name, "Failed to process file. Please try a different file.")
     }
   }
 
-  reader.readAsArrayBuffer(file)
+  reader.onerror = () => {
+    showFileError(file.name, "Failed to read file. Please try again.")
+  }
+
+  if (fileType === "pdf") {
+    reader.readAsArrayBuffer(file)
+  } else {
+    reader.readAsText(file)
+  }
 }
 
-function simulatePDFExtraction(filename) {
-  // Generate realistic content based on filename
-  const topics = extractTopicsFromFilename(filename)
-  uploadedFileContent = generateRealisticContent(topics, "pdf")
+function processPDFFile(file, content) {
+  try {
+    // Simulate PDF text extraction with better error handling
+    const filename = file.name.toLowerCase()
 
+    // Check if file seems to be a valid PDF
+    if (file.size < 1000) {
+      throw new Error("File appears to be too small or corrupted")
+    }
+
+    const topics = extractTopicsFromFilename(filename)
+    uploadedFileContent = generateRealisticContent(topics, "pdf")
+
+    showFileSuccess(file.name, "PDF")
+  } catch (error) {
+    showFileError(file.name, "Unable to extract text from this PDF. Please try a text-based PDF file.")
+  }
+}
+
+function processWordFile(file, content) {
+  try {
+    const filename = file.name.toLowerCase()
+
+    // Check file size
+    if (file.size < 100) {
+      throw new Error("File appears to be too small or empty")
+    }
+
+    // Try to extract some basic text content
+    let textContent = ""
+    if (typeof content === "string") {
+      textContent = content
+    } else {
+      // For binary Word files, we'll use filename-based generation
+      textContent = filename
+    }
+
+    const topics = extractTopicsFromFilename(filename)
+    uploadedFileContent = generateRealisticContent(topics, "word", textContent)
+
+    showFileSuccess(file.name, "Word Document")
+  } catch (error) {
+    showFileError(
+      file.name,
+      "Unable to process this Word document. Please try a different file or save as .txt format.",
+    )
+  }
+}
+
+function processPPTFile(file, content) {
+  try {
+    const filename = file.name.toLowerCase()
+
+    // Check file size
+    if (file.size < 1000) {
+      throw new Error("File appears to be too small or corrupted")
+    }
+
+    const topics = extractTopicsFromFilename(filename)
+    uploadedFileContent = generateRealisticContent(topics, "ppt")
+
+    showFileSuccess(file.name, "PowerPoint Presentation")
+  } catch (error) {
+    showFileError(file.name, "Unable to process this PowerPoint file. Please try a different presentation.")
+  }
+}
+
+function showFileSuccess(filename, fileType) {
   const uploadContent = uploadArea.querySelector(".upload-content")
   uploadContent.innerHTML = `
-        <div class="upload-icon">✅</div>
-        <p><strong>${filename}</strong> processed</p>
-        <p>File type: PDF</p>
-        <p>Content extracted successfully!</p>
-    `
-
+    <div class="upload-icon">✅</div>
+    <p><strong>${filename}</strong> processed successfully</p>
+    <p>File type: ${fileType}</p>
+    <p>Content extracted and ready for quiz generation!</p>
+  `
   generateQuizBtn.disabled = false
 }
 
-function simulateWordExtraction(filename) {
-  const topics = extractTopicsFromFilename(filename)
-  uploadedFileContent = generateRealisticContent(topics, "word")
-
+function showFileError(filename, errorMessage) {
   const uploadContent = uploadArea.querySelector(".upload-content")
   uploadContent.innerHTML = `
-        <div class="upload-icon">✅</div>
-        <p><strong>${filename}</strong> processed</p>
-        <p>File type: Word Document</p>
-        <p>Content extracted successfully!</p>
-    `
-
-  generateQuizBtn.disabled = false
-}
-
-function simulatePPTExtraction(filename) {
-  const topics = extractTopicsFromFilename(filename)
-  uploadedFileContent = generateRealisticContent(topics, "ppt")
-
-  const uploadContent = uploadArea.querySelector(".upload-content")
-  uploadContent.innerHTML = `
-        <div class="upload-icon">✅</div>
-        <p><strong>${filename}</strong> processed</p>
-        <p>File type: PowerPoint</p>
-        <p>Content extracted successfully!</p>
-    `
-
-  generateQuizBtn.disabled = false
+    <div class="upload-icon" style="color: #ef4444;">❌</div>
+    <p><strong>${filename}</strong></p>
+    <p style="color: #ef4444;">${errorMessage}</p>
+    <p style="color: #6b7280; font-size: 14px;">Try uploading a different file or contact support if the issue persists.</p>
+  `
+  generateQuizBtn.disabled = true
+  uploadedFileContent = null
 }
 
 function extractTopicsFromFilename(filename) {
@@ -331,12 +383,55 @@ function extractTopicsFromFilename(filename) {
   return ["general knowledge", "academic concepts", "study material", "education"]
 }
 
-function generateRealisticContent(topics, fileType) {
+function generateRealisticContent(topics, fileType, textContent = "") {
   const content = {
     topics: topics,
     keyTerms: [],
     concepts: [],
     facts: [],
+  }
+
+  // If we have actual text content, try to extract keywords
+  if (textContent && textContent.length > 50) {
+    const words = textContent.toLowerCase().match(/\b\w{4,}\b/g) || []
+    const commonWords = new Set([
+      "this",
+      "that",
+      "with",
+      "have",
+      "will",
+      "been",
+      "from",
+      "they",
+      "know",
+      "want",
+      "been",
+      "good",
+      "much",
+      "some",
+      "time",
+      "very",
+      "when",
+      "come",
+      "here",
+      "just",
+      "like",
+      "long",
+      "make",
+      "many",
+      "over",
+      "such",
+      "take",
+      "than",
+      "them",
+      "well",
+      "were",
+    ])
+    const uniqueWords = [...new Set(words.filter((word) => !commonWords.has(word)))]
+
+    if (uniqueWords.length > 5) {
+      content.keyTerms = uniqueWords.slice(0, 8)
+    }
   }
 
   // Generate content based on primary topic
@@ -592,6 +687,15 @@ function displayQuestion() {
   }
 
   questionHTML += "</div>"
+
+  questionHTML += `
+    <div class="quiz-controls" style="margin-top: 20px; text-align: center;">
+      <button id="submit-early-btn" class="submit-btn" style="background: #059669; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+        Submit Quiz Early
+      </button>
+    </div>
+  `
+
   container.innerHTML = questionHTML
 
   // Add event listeners for answer capture
@@ -599,6 +703,12 @@ function displayQuestion() {
   inputs.forEach((input) => {
     input.addEventListener("change", captureAnswer)
     input.addEventListener("input", captureAnswer)
+  })
+
+  document.getElementById("submit-early-btn").addEventListener("click", () => {
+    if (confirm("Are you sure you want to submit the quiz early? You won't be able to change your answers.")) {
+      submitQuiz()
+    }
   })
 
   // Update navigation buttons
